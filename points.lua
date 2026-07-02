@@ -616,7 +616,7 @@ configList.ScrollBarThickness = 4
 local configLayout = Instance.new("UIListLayout")
 configLayout.Parent = configList
 configLayout.SortOrder = Enum.SortOrder.LayoutOrder
-configLayout.PaddconfigLayout.Padding = UDim.new(0, 4)
+conficonfigLayout.Padding = UDim.new(0, 4)
 
 local configButtons = {}
 
