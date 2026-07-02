@@ -5,6 +5,133 @@ pcall(function()
     game.Players.LocalPlayer.PlayerGui:FindFirstChild("ConfirmGUI"):Destroy()
 end)
 
+-- ===== ФУНКЦИЯ ПОДТВЕРЖДЕНИЯ С ТАЙМЕРОМ =====
+local function ShowConfirm(title, message, callback)
+    pcall(function()
+        game.Players.LocalPlayer.PlayerGui:FindFirstChild("ConfirmGUI"):Destroy()
+    end)
+    
+    local confirmGui = Instance.new("ScreenGui")
+    confirmGui.Name = "ConfirmGUI"
+    confirmGui.Parent = game.Players.LocalPlayer.PlayerGui
+    confirmGui.ResetOnSpawn = false
+    
+    local overlay = Instance.new("Frame")
+    overlay.Parent = confirmGui
+    overlay.Size = UDim2.new(1, 0, 1, 0)
+    overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    overlay.BackgroundTransparency = 0.5
+    overlay.BorderSizePixel = 0
+    
+    local frame = Instance.new("Frame")
+    frame.Parent = confirmGui
+    frame.Size = UDim2.new(0, 350, 0, 160)
+    frame.Position = UDim2.new(0.5, -175, 0.5, -80)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+    frame.BorderSizePixel = 0
+    
+    local frameCorner = Instance.new("UICorner")
+    frameCorner.Parent = frame
+    frameCorner.CornerRadius = UDim.new(0, 10)
+    
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Parent = frame
+    titleLabel.Size = UDim2.new(1, 0, 0, 35)
+    titleLabel.Position = UDim2.new(0, 0, 0, 5)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = title or "⚠️ ПОДТВЕРЖДЕНИЕ"
+    titleLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
+    titleLabel.TextScaled = true
+    titleLabel.Font = Enum.Font.GothamBold
+    
+    local msgLabel = Instance.new("TextLabel")
+    msgLabel.Parent = frame
+    msgLabel.Size = UDim2.new(1, -20, 0, 40)
+    msgLabel.Position = UDim2.new(0, 10, 0, 45)
+    msgLabel.BackgroundTransparency = 1
+    msgLabel.Text = message or "Вы уверены?"
+    msgLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
+    msgLabel.TextScaled = true
+    msgLabel.Font = Enum.Font.GothamBold
+    msgLabel.TextWrapped = true
+    
+    local timerLabel = Instance.new("TextLabel")
+    timerLabel.Parent = frame
+    timerLabel.Size = UDim2.new(0, 60, 0, 40)
+    timerLabel.Position = UDim2.new(0.5, -30, 0, 90)
+    timerLabel.BackgroundTransparency = 1
+    timerLabel.Text = "3"
+    timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    timerLabel.TextScaled = true
+    timerLabel.Font = Enum.Font.GothamBold
+    
+    local okBtn = Instance.new("TextButton")
+    okBtn.Parent = frame
+    okBtn.Size = UDim2.new(0, 120, 0, 40)
+    okBtn.Position = UDim2.new(0.5, -130, 0, 135)
+    okBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
+    okBtn.Text = "⏳ 3"
+    okBtn.TextColor3 = Color3.fromRGB(150, 150, 170)
+    okBtn.TextScaled = true
+    okBtn.Font = Enum.Font.GothamBold
+    okBtn.BorderSizePixel = 0
+    okBtn.AutoButtonColor = false
+    okBtn.Selectable = false
+    
+    local okCorner = Instance.new("UICorner")
+    okCorner.Parent = okBtn
+    okCorner.CornerRadius = UDim.new(0, 6)
+    
+    local cancelBtn = Instance.new("TextButton")
+    cancelBtn.Parent = frame
+    cancelBtn.Size = UDim2.new(0, 120, 0, 40)
+    cancelBtn.Position = UDim2.new(0.5, 10, 0, 135)
+    cancelBtn.BackgroundColor3 = Color3.fromRGB(160, 40, 40)
+    cancelBtn.Text = "❌ ОТМЕНА"
+    cancelBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    cancelBtn.TextScaled = true
+    cancelBtn.Font = Enum.Font.GothamBold
+    cancelBtn.BorderSizePixel = 0
+    
+    local cancelCorner = Instance.new("UICorner")
+    cancelCorner.Parent = cancelBtn
+    cancelCorner.CornerRadius = UDim.new(0, 6)
+    
+    cancelBtn.MouseButton1Click:Connect(function()
+        confirmGui:Destroy()
+    end)
+    
+    local timeLeft = 3
+    local timerRunning = true
+    
+    local function UpdateTimer()
+        if timeLeft > 0 then
+            timerLabel.Text = tostring(timeLeft)
+            okBtn.Text = "⏳ " .. tostring(timeLeft)
+            timeLeft = timeLeft - 1
+            task.wait(1)
+            UpdateTimer()
+        else
+            timerLabel.Text = "✅"
+            okBtn.Text = "✅ ОК"
+            okBtn.BackgroundColor3 = Color3.fromRGB(40, 200, 80)
+            okBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            okBtn.Selectable = true
+            okBtn.AutoButtonColor = true
+            timerRunning = false
+            
+            okBtn.MouseButton1Click:Connect(function()
+                confirmGui:Destroy()
+                if callback then
+                    callback()
+                end
+            end)
+        end
+    end
+    
+    task.spawn(UpdateTimer)
+end
+
 -- ===== КРУГЛАЯ КНОПКА TP =====
 local toggleGui = Instance.new("ScreenGui")
 toggleGui.Name = "TPToggle"
@@ -220,138 +347,10 @@ local function createTextBox(parent, placeholder, width, height)
     return box
 end
 
--- ===== ФУНКЦИЯ ПОДТВЕРЖДЕНИЯ С ТАЙМЕРОМ =====
-local function ShowConfirm(title, message, callback)
-    pcall(function()
-        game.Players.LocalPlayer.PlayerGui:FindFirstChild("ConfirmGUI"):Destroy()
-    end)
-    
-    local confirmGui = Instance.new("ScreenGui")
-    confirmGui.Name = "ConfirmGUI"
-    confirmGui.Parent = game.Players.LocalPlayer.PlayerGui
-    confirmGui.ResetOnSpawn = false
-    
-    local overlay = Instance.new("Frame")
-    overlay.Parent = confirmGui
-    overlay.Size = UDim2.new(1, 0, 1, 0)
-    overlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    overlay.BackgroundTransparency = 0.5
-    overlay.BorderSizePixel = 0
-    
-    local frame = Instance.new("Frame")
-    frame.Parent = confirmGui
-    frame.Size = UDim2.new(0, 350, 0, 160)
-    frame.Position = UDim2.new(0.5, -175, 0.5, -80)
-    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
-    frame.BorderSizePixel = 0
-    
-    local frameCorner = Instance.new("UICorner")
-    frameCorner.Parent = frame
-    frameCorner.CornerRadius = UDim.new(0, 10)
-    
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Parent = frame
-    titleLabel.Size = UDim2.new(1, 0, 0, 35)
-    titleLabel.Position = UDim2.new(0, 0, 0, 5)
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = title or "⚠️ ПОДТВЕРЖДЕНИЕ"
-    titleLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
-    titleLabel.TextScaled = true
-    titleLabel.Font = Enum.Font.GothamBold
-    
-    local msgLabel = Instance.new("TextLabel")
-    msgLabel.Parent = frame
-    msgLabel.Size = UDim2.new(1, -20, 0, 40)
-    msgLabel.Position = UDim2.new(0, 10, 0, 45)
-    msgLabel.BackgroundTransparency = 1
-    msgLabel.Text = message or "Вы уверены?"
-    msgLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
-    msgLabel.TextScaled = true
-    msgLabel.Font = Enum.Font.GothamBold
-    msgLabel.TextWrapped = true
-    
-    local timerLabel = Instance.new("TextLabel")
-    timerLabel.Parent = frame
-    timerLabel.Size = UDim2.new(0, 60, 0, 40)
-    timerLabel.Position = UDim2.new(0.5, -30, 0, 90)
-    timerLabel.BackgroundTransparency = 1
-    timerLabel.Text = "3"
-    timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    timerLabel.TextScaled = true
-    timerLabel.Font = Enum.Font.GothamBold
-    
-    local okBtn = Instance.new("TextButton")
-    okBtn.Parent = frame
-    okBtn.Size = UDim2.new(0, 120, 0, 40)
-    okBtn.Position = UDim2.new(0.5, -130, 0, 135)
-    okBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 100)
-    okBtn.Text = "⏳ 3"
-    okBtn.TextColor3 = Color3.fromRGB(150, 150, 170)
-    okBtn.TextScaled = true
-    okBtn.Font = Enum.Font.GothamBold
-    okBtn.BorderSizePixel = 0
-    okBtn.AutoButtonColor = false
-    okBtn.Selectable = false
-    
-    local okCorner = Instance.new("UICorner")
-    okCorner.Parent = okBtn
-    okCorner.CornerRadius = UDim.new(0, 6)
-    
-    local cancelBtn = Instance.new("TextButton")
-    cancelBtn.Parent = frame
-    cancelBtn.Size = UDim2.new(0, 120, 0, 40)
-    cancelBtn.Position = UDim2.new(0.5, 10, 0, 135)
-    cancelBtn.BackgroundColor3 = Color3.fromRGB(160, 40, 40)
-    cancelBtn.Text = "❌ ОТМЕНА"
-    cancelBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    cancelBtn.TextScaled = true
-    cancelBtn.Font = Enum.Font.GothamBold
-    cancelBtn.BorderSizePixel = 0
-    
-    local cancelCorner = Instance.new("UICorner")
-    cancelCorner.Parent = cancelBtn
-    cancelCorner.CornerRadius = UDim.new(0, 6)
-    
-    cancelBtn.MouseButton1Click:Connect(function()
-        confirmGui:Destroy()
-    end)
-    
-    local timeLeft = 3
-    local timerRunning = true
-    
-    local function UpdateTimer()
-        if timeLeft > 0 then
-            timerLabel.Text = tostring(timeLeft)
-            okBtn.Text = "⏳ " .. tostring(timeLeft)
-            timeLeft = timeLeft - 1
-            task.wait(1)
-            UpdateTimer()
-        else
-            timerLabel.Text = "✅"
-            okBtn.Text = "✅ ОК"
-            okBtn.BackgroundColor3 = Color3.fromRGB(40, 200, 80)
-            okBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            okBtn.Selectable = true
-            okBtn.AutoButtonColor = true
-            timerRunning = false
-            
-            okBtn.MouseButton1Click:Connect(function()
-                confirmGui:Destroy()
-                if callback then
-                    callback()
-                end
-            end)
-        end
-    end
-    
-    task.spawn(UpdateTimer)
-end
-
 -- ===== ХРАНИЛИЩЕ =====
 local savedPoints = {}
 local pointButtons = {}
 local configs = {}
-local autoLoad = false
 local currentConfig = ""
 
 -- ===== ФУНКЦИИ РАБОТЫ С КОНФИГАМИ =====
@@ -417,6 +416,8 @@ local tab2 = createTab("Точки", "📍")
 local tab3 = createTab("Настройки", "⚙️")
 
 -- ===== ВКЛАДКА 1: СОЗДАТЬ ТОЧКУ =====
+createLabel(tab1, "📌 СОЗДАТЬ ТОЧКУ", Color3.fromRGB(255, 200, 100), 0)
+
 local createFrame = Instance.new("Frame")
 createFrame.Parent = tab1
 createFrame.Size = UDim2.new(1, -10, 0, 80)
@@ -458,9 +459,13 @@ confirmBtn.Position = UDim2.new(0.63, 0, 0, 0)
 createLabel(tab1, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
 
 -- ===== ВКЛАДКА 2: ТОЧКИ =====
+createLabel(tab2, "📍 ВСЕ ТОЧКИ", Color3.fromRGB(255, 200, 100), 0)
+createLabel(tab2, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
+
 local pointsList = Instance.new("ScrollingFrame")
 pointsList.Parent = tab2
-pointsList.Size = UDim2.new(1, 0, 1, 0)
+pointsList.Size = UDim2.new(1, 0, 1, -60)
+pointsList.Position = UDim2.new(0, 0, 0, 70)
 pointsList.BackgroundTransparency = 1
 pointsList.CanvasSize = UDim2.new(0, 0, 0, 0)
 pointsList.ScrollBarThickness = 4
@@ -578,7 +583,11 @@ function RefreshPoints()
 end
 
 -- ===== ВКЛАДКА 3: НАСТРОЙКИ =====
-createLabel(tab3, "💾 Сохранить конфиг", Color3.fromRGB(255, 200, 100), 0)
+createLabel(tab3, "⚙️ НАСТРОЙКИ", Color3.fromRGB(255, 200, 100), 0)
+createLabel(tab3, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
+
+-- Сохранить конфиг
+createLabel(tab3, "💾 Сохранить конфиг", Color3.fromRGB(200, 200, 220), 0)
 
 local saveFrame = Instance.new("Frame")
 saveFrame.Parent = tab3
@@ -586,7 +595,7 @@ saveFrame.Size = UDim2.new(1, -10, 0, 40)
 saveFrame.Position = UDim2.new(0, 5, 0, 0)
 saveFrame.BackgroundTransparency = 1
 
-local saveNameBox = createTextBox(saveFrame, "Название конфига...", 0.6, 0)
+local saveNameBox = createTextBox(saveFrame, "Имя конфига", 0.6, 0)
 saveNameBox.Position = UDim2.new(0, 0, 0, 0)
 
 local saveConfigBtn = createButton(
@@ -604,11 +613,74 @@ local saveConfigBtn = createButton(
 saveConfigBtn.Position = UDim2.new(0.63, 0, 0, 0)
 
 createLabel(tab3, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
-createLabel(tab3, "📂 Выбрать конфиг", Color3.fromRGB(255, 200, 100), 0)
+
+-- Загрузить конфиг
+createLabel(tab3, "📂 Загрузить конфиг",createLabel(tab3, "📂 Загрузить конфиг", Color3.fromRGB(200, 200, 220), 0)
+
+local loadFrame = Instance.new("Frame")
+loadFrame.Parent = tab3
+loadFrame.Size = UDim2.new(1, -10, 0, 40)
+loadFrame.Position = UDim2.new(0, 5, 0, 0)
+loadFrame.BackgroundTransparency = 1
+
+local loadConfigBtn = createButton(
+    loadFrame,
+    "📂 Загрузить",
+    Color3.fromRGB(40, 160, 200),
+    function()
+        local name = game:GetService("StarterGui"):SetCore("InputBox", {
+            Title = "Загрузить конфиг",
+            Text = "Введите имя конфига",
+            DefaultText = ""
+        })
+        if name and name ~= "" then
+            LoadConfig(name)
+        end
+    end,
+    0.35
+)
+loadConfigBtn.Position = UDim2.new(0.63, 0, 0, 0)
+
+createLabel(tab3, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
+
+-- Удалить конфиг
+createLabel(tab3, "🗑️ Удалить конфиг", Color3.fromRGB(200, 200, 220), 0)
+
+local deleteFrame = Instance.new("Frame")
+deleteFrame.Parent = tab3
+deleteFrame.Size = UDim2.new(1, -10, 0, 40)
+deleteFrame.Position = UDim2.new(0, 5, 0, 0)
+deleteFrame.BackgroundTransparency = 1
+
+local deleteConfigBtn = createButton(
+    deleteFrame,
+    "🗑️ Удалить",
+    Color3.fromRGB(180, 40, 40),
+    function()
+        local name = game:GetService("StarterGui"):SetCore("InputBox", {
+            Title = "Удалить конфиг",
+            Text = "Введите имя конфига",
+            DefaultText = ""
+        })
+        if name and name ~= "" then
+            ShowConfirm("⚠️ УДАЛЕНИЕ КОНФИГА", "Удалить конфиг '" .. name .. "'?", function()
+                DeleteConfig(name)
+            end)
+        end
+    end,
+    0.35
+)
+deleteConfigBtn.Position = UDim2.new(0.63, 0, 0, 0)
+
+createLabel(tab3, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
+
+-- Выбрать конфиг
+createLabel(tab3, "📂 Выбрать конфиг", Color3.fromRGB(200, 200, 220), 0)
 
 local configList = Instance.new("ScrollingFrame")
 configList.Parent = tab3
-configList.Size = UDim2.new(1, 0, 0, 120)
+configList.Size = UDim2.new(1, 0, 0, 100)
+configList.Position = UDim2.new(0, 0, 0, 0)
 configList.BackgroundTransparency = 1
 configList.CanvasSize = UDim2.new(0, 0, 0, 0)
 configList.ScrollBarThickness = 4
@@ -616,7 +688,7 @@ configList.ScrollBarThickness = 4
 local configLayout = Instance.new("UIListLayout")
 configLayout.Parent = configList
 configLayout.SortOrder = Enum.SortOrder.LayoutOrder
-conficonfigLayout.Padding = UDim.new(0, 4)
+configLayout.Padding = UDim.new(0, 4)
 
 local configButtons = {}
 
@@ -652,24 +724,10 @@ function RefreshConfigList()
             function()
                 LoadConfig(name)
             end,
-            0.22
+            0.35
         )
         loadBtn.Position = UDim2.new(0.47, 0, 0, 0)
-        loadBtn.Size = UDim2.new(0.22, 0, 1, 0)
-        
-        local deleteConfigBtn = createButton(
-            row,
-            "🗑️ Удалить",
-            Color3.fromRGB(180, 40, 40),
-            function()
-                ShowConfirm("⚠️ УДАЛЕНИЕ КОНФИГА", "Удалить конфиг '" .. name .. "'?", function()
-                    DeleteConfig(name)
-                end)
-            end,
-            0.22
-        )
-        deleteConfigBtn.Position = UDim2.new(0.70, 0, 0, 0)
-        deleteConfigBtn.Size = UDim2.new(0.22, 0, 1, 0)
+        loadBtn.Size = UDim2.new(0.35, 0, 1, 0)
         
         table.insert(configButtons, row)
     end
@@ -690,54 +748,19 @@ function RefreshConfigList()
 end
 
 createLabel(tab3, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
-createLabel(tab3, "🔄 Авто загрузка", Color3.fromRGB(255, 200, 100), 0)
 
-local autoFrame = Instance.new("Frame")
-autoFrame.Parent = tab3
-autoFrame.Size = UDim2.new(1, -10, 0, 40)
-autoFrame.Position = UDim2.new(0, 5, 0, 0)
-autoFrame.BackgroundTransparency = 1
+-- Закрыть скрипт
+createLabel(tab3, "❌ Закрыть скрипт", Color3.fromRGB(200, 200, 220), 0)
 
-local autoToggle = Instance.new("TextButton")
-autoToggle.Parent = autoFrame
-autoToggle.Size = UDim2.new(0.15, 0, 1, 0)
-autoToggle.Position = UDim2.new(0.82, 0, 0, 0)
-autoToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-autoToggle.Text = "ВЫКЛ"
-autoToggle.TextColor3 = Color3.fromRGB(200, 200, 200)
-autoToggle.TextScaled = true
-autoToggle.Font = Enum.Font.GothamBold
-autoToggle.BorderSizePixel = 0
-
-local autoCorner = Instance.new("UICorner")
-autoCorner.Parent = autoToggle
-autoCorner.CornerRadius = UDim.new(0, 6)
-
-autoToggle.MouseButton1Click:Connect(function()
-    autoLoad = not autoLoad
-    if autoLoad then
-        autoToggle.BackgroundColor3 = Color3.fromRGB(40, 180, 80)
-        autoToggle.Text = "ВКЛ"
-        autoToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    else
-        autoToggle.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
-        autoToggle.Text = "ВЫКЛ"
-        autoToggle.TextColor3 = Color3.fromRGB(200, 200, 200)
-    end
-end)
-
-createLabel(tab3, "─────────────────────", Color3.fromRGB(100, 100, 120), 0)
-createLabel(tab3, "❌ Закрыть скрипт", Color3.fromRGB(255, 200, 100), 0)
-
-local closeFrame = Instance.new("Frame")
-closeFrame.Parent = tab3
-closeFrame.Size = UDim2.new(1, -10, 0, 40)
-closeFrame.Position = UDim2.new(0, 5, 0, 0)
-closeFrame.BackgroundTransparency = 1
+local closeFrame2 = Instance.new("Frame")
+closeFrame2.Parent = tab3
+closeFrame2.Size = UDim2.new(1, -10, 0, 40)
+closeFrame2.Position = UDim2.new(0, 5, 0, 0)
+closeFrame2.BackgroundTransparency = 1
 
 local closeBtn2 = createButton(
-    closeFrame,
-    "Закрыть",
+    closeFrame2,
+    "❌ Закрыть",
     Color3.fromRGB(180, 40, 40),
     function()
         ShowConfirm("⚠️ ЗАКРЫТИЕ СКРИПТА", "Вы уверены, что хотите закрыть скрипт?", function()
@@ -746,10 +769,9 @@ local closeBtn2 = createButton(
             savedPoints = {}
         end)
     end,
-    0.2
+    0.35
 )
-closeBtn2.Position = UDim2.new(0.77, 0, 0, 0)
-closeBtn2.Size = UDim2.new(0.2, 0, 1, 0)
+closeBtn2.Position = UDim2.new(0.63, 0, 0, 0)
 
 -- ===== ОТКРЫТИЕ =====
 toggleBtn.MouseButton1Click:Connect(function()
@@ -761,16 +783,6 @@ end)
 LoadConfigList()
 RefreshPoints()
 RefreshConfigList()
-
-if autoLoad then
-    local lastConfig = ""
-    for name, _ in pairs(configs) do
-        lastConfig = name
-    end
-    if lastConfig ~= "" then
-        LoadConfig(lastConfig)
-    end
-end
 
 if #tabButtons > 0 then
     tabButtons[1].MouseButton1Click:Fire()
